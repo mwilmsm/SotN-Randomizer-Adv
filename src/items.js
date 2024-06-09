@@ -1,11 +1,5 @@
-(function(self) {
+import constants from "./constants.js";
 
-  let constants
-  if (self) {
-    constants = self.sotnRando.constants
-  } else {
-    constants = require('./constants')
-  }
   const ZONE = constants.ZONE
   const TYPE = constants.TYPE
   const GLOBAL_DROP = constants.GLOBAL_DROP
@@ -9302,12 +9296,4 @@
     }],
   }]
 
-  const exports = items
-  if (self) {
-    self.sotnRando = Object.assign(self.sotnRando || {}, {
-      items: exports,
-    })
-  } else {
-    module.exports = exports
-  }
-})(typeof(self) !== 'undefined' ? self : null)
+  export default items;

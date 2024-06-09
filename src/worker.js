@@ -1,12 +1,12 @@
-function randomizeWorker() {
+import constants from './constants';
+import eccEdcCalc from '.eccEdcCalc';
+import errors from './errors';
+import randomizeRelics from './randomizeRelics';
+import randomizeItems from './randomizeItems';
+import seedrandom from '.seedrandom';
+import util from './util';
 
-  let constants
-  let eccEdcCalc
-  let errors
-  let util
-  let randomizeRelics
-  let randomizeItems
-  let seedrandom
+function randomizeWorker() {  
 
   function loadBrowser(url) {
     importScripts(
@@ -56,13 +56,7 @@ function randomizeWorker() {
       url + 'src/randomize_relics.js',
       url + 'src/ecc-edc-recalc-js.js',
     )
-    constants = self.sotnRando.constants
-    eccEdcCalc = self.eccEdcCalc
-    errors = self.sotnRando.errors
-    randomizeRelics = self.sotnRando.randomizeRelics.randomizeRelics
-    randomizeItems = self.sotnRando.randomizeItems
-    seedrandom = Math.seedrandom
-    util = self.sotnRando.util
+
   }
 
   function loadNode() {
