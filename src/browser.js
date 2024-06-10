@@ -1,15 +1,14 @@
-
-const constants = window.sotnRando.constants
-const errors = window.sotnRando.errors
-const extension = window.sotnRando.extension
-const util = window.sotnRando.util
-const presets = window.sotnRando.presets
-const randomizeStats = window.sotnRando.randomizeStats
-const randomizeItems = window.sotnRando.randomizeItems // unused
-const randomizeRelics = window.sotnRando.randomizeRelics
-const randomizeMusic = window.sotnRando.randomizeMusic
-const applyAccessibilityPatches = window.sotnRando.applyAccessibilityPatches
-const relics = window.sotnRando.relics // unused
+import constants from './constants';
+import errors from './errors';
+import extension from './extension';
+import util from './util';
+import presets from './presets';
+import randomizeStats from './randomizeStats';
+import randomizeItems from './randomizeItems';
+import randomizeRelics from './randomizeRelics';
+import randomizeMusic from './randomizeMusic';
+import applyAccessibilityPatches from './applyAccessibilityPatches';
+import relics from './relics';
 
 let info
 let currSeed

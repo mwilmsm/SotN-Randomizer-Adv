@@ -1,21 +1,7 @@
-(function(self) {
-
-  let stats
-  let items
-  let constants
-  let util
-
-  if (self) {
-    stats = self.sotnRando.stats
-    items = self.sotnRando.items
-    constants = self.sotnRando.constants
-    util = self.sotnRando.util
-  } else {
-    stats = require('./stats')
-    items = require('./items')
-    constants = require('./constants')
-    util = require('./util')
-  }
+import stats from './stats';
+import items from './items';
+import constants from './constants';
+import util from './util';
 
   const shuffled = util.shuffled
 
@@ -435,12 +421,4 @@
     }
   }
 
-  const exports = randomizeStats
-  if (self) {
-    self.sotnRando = Object.assign(self.sotnRando || {}, {
-      randomizeStats: exports,
-    })
-  } else {
-    module.exports = exports
-  }
-})(typeof(self) !== 'undefined' ? self : null)
+export default randomizeStats;

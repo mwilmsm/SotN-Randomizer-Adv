@@ -1,9 +1,5 @@
-let constants
-if (self) {
-  constants = self.sotnRando.constants
-} else {
-  constants = require('./constants')
-}
+import constants from './constants';
+
 const ZONE = constants.ZONE
 const EXTENSION = constants.EXTENSION
 const LOCATION = constants.LOCATION

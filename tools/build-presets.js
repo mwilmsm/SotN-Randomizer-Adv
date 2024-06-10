@@ -2,22 +2,14 @@
 // This tool generates a JavaScript module from a preset serialized in JSON.
 // Usage: tools/build-presets [preset-name]
 
-const child_process = require('child_process')
-const path = require('path')
-const runner = require('hygen').runner
+import { runner } from 'hygen';
+import presets from '../src/presets.js';
 
 process.env.HYGEN_OVERWRITE = 1
 
-let presets
-if (process.argv.length > 2) {
-  presets = process.argv.slice(2)
-} else {
-  presets = require('../package').presets
-}
-
 presets.forEach(function(name) {
   runner(['preset', 'new', '--name', name], {
-    templates: path.join(__dirname, '../templates'),
+    templates: '../templates',
     cwd: process.cwd(),
     logger: {
       ok: console.log.bind(console),

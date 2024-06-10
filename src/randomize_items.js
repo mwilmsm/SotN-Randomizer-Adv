@@ -3,7 +3,6 @@ import enemies from './enemies';
 import util from './util';
 
 const TYPE = constants.TYPE
-const typeNames = constants.typeNames
 const ZONE = constants.ZONE
 const zones = constants.zones
 const zoneNames = constants.zoneNames
@@ -30,7 +29,6 @@ function typeFilter(types) {
   }
 }
 
-const heartFilter = typeFilter([TYPE.HEART])
 const goldFilter = typeFilter([TYPE.GOLD])
 const subweaponFilter = typeFilter([TYPE.SUBWEAPON])
 const powerupFilter = typeFilter([TYPE.POWERUP])

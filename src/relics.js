@@ -1,17 +1,8 @@
-(function(self) {
+import constants from './constants';
 
-  let constants
-  if (self) {
-    constants = self.sotnRando.constants
-  } else {
-    constants = require('./constants')
-  }
   const EXTENSION = constants.EXTENSION
   const RELIC = constants.RELIC
-  const TYPE = constants.TYPE
   const ZONE = constants.ZONE
-  const SLOT = constants.SLOT
-  const slots = constants.slots
   const equipIdOffset = constants.equipIdOffset
   const invOffset = constants.equipmentInvIdOffset
   const tileIdOffset = constants.tileIdOffset
@@ -809,12 +800,4 @@
     consumesItem: false,
   }]
 
-  const exports = relics
-  if (self) {
-    self.sotnRando = Object.assign(self.sotnRando || {}, {
-      relics: exports,
-    })
-  } else {
-    module.exports = exports
-  }
-})(typeof(self) !== 'undefined' ? self : null)
+export default relics;

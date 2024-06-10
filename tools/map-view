@@ -2,12 +2,11 @@
 // This tool parses a SotN bin and displays map data.
 // Usage: tools/map-view <path-to-rom> <zone>
 
-require('colors')
-const fs = require('fs')
-const constants = require('../src/constants')
-const items = require('../src/items')
-const relics = require('../src/relics')
-const util = require('../src/util')
+import * as fs from 'fs';
+import constants from '../src/constants';
+import items from '../src/items';
+import relics from '../src/relics';
+import util from '../src/util';
 
 const ZONE = constants.ZONE
 const zones = constants.zones
