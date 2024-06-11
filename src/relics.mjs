@@ -1,4 +1,4 @@
-import constants from './constants';
+import constants from './constants.mjs';
 
   const EXTENSION = constants.EXTENSION
   const RELIC = constants.RELIC
@@ -12,7 +12,7 @@ import constants from './constants';
     if (self) {
       items = self.sotnRando.items
     } else {
-      items = require('./items')
+      items = require('./items.mjs')
     }
     return items
   }
@@ -22,7 +22,7 @@ import constants from './constants';
     if (self) {
       util = self.sotnRando.util
     } else {
-      util = require('./util')
+      util = require('./util.mjs')
     }
     return util
   }

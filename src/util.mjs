@@ -1,9 +1,9 @@
-import constants from './constants';
-import enemies from './enemies';
-import errors from './errors';
-import extension from './extension';
-import items from './items';
-import relics from './relics';
+import constants from './constants.mjs';
+import enemies from './enemies.mjs';
+import errors from './errors.mjs';
+import extension from './extension.mjs';
+import items from './items.mjs';
+import relics from './relics.mjs';
 import crypto from 'crypto';
 import fs from 'fs';
 

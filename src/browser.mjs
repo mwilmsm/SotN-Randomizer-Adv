@@ -1,14 +1,14 @@
 import constants from './constants';
 import errors from './errors';
 import extension from './extension';
-import util from './util';
+import util from './util.mjs';
 import presets from './presets';
 import randomizeStats from './randomizeStats';
 import randomizeItems from './randomizeItems';
 import randomizeRelics from './randomizeRelics';
 import randomizeMusic from './randomizeMusic';
 import applyAccessibilityPatches from './applyAccessibilityPatches';
-import relics from './relics';
+import relics from './relics.mjs';
 
 let info
 let currSeed

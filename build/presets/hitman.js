@@ -8,7 +8,7 @@
   if (self) {
     util = self.sotnRando.util
   } else {
-    util = require('../../src/util')
+    util = require('../../src/util.mjs')
   }
   const PresetBuilder = util.PresetBuilder
 

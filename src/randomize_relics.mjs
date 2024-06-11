@@ -1,9 +1,9 @@
-import constants from './constants';
-import errors from './errors';
-import extension from './extension';
-import relics from './relics';
-import util from './util';
-import items from './items';
+import constants from './constants.mjs';
+import errors from './errors.mjs';
+import extension from './extension.mjs';
+import relics from './relics.mjs';
+import util from './util.mjs';
+import items from './items.mjs';
 
 
 function getRandomZoneItem(rng, zones, pool, placed) {

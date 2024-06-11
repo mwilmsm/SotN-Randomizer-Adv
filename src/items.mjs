@@ -1,4 +1,4 @@
-import constants from "./constants.js";
+import constants from "./constants.mjs";
 
   const ZONE = constants.ZONE
   const TYPE = constants.TYPE

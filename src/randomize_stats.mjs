@@ -1,7 +1,7 @@
-import stats from './stats';
-import items from './items';
-import constants from './constants';
-import util from './util';
+import stats from './stats.mjs';
+import items from './items.mjs';
+import constants from './constants.mjs';
+import util from './util.mjs';
 
   const shuffled = util.shuffled
 

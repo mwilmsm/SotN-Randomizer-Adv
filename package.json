@@ -2,7 +2,6 @@
   "name": "sotn-randomizer",
   "version": "3.16.0",
   "description": "This is a romhacking tool to randomize some things about `Castlevania: Symphony of the Night`.",
-  "type": "module",
   "dependencies": {
     "colors": "^1.4.0",
     "hygen": "^6.2.11",
@@ -14,7 +13,7 @@
     "url": "git+https://github.com/3snowp7im/SotN-Randomizer.git"
   },
   "scripts": {
-    "build-presets": "node tools/build-presets",
+    "build-presets": "node tools/build-presets.mjs",
     "postinstall": "npm run build-presets"
   },
   "engines": {

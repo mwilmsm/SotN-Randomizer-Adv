@@ -3,7 +3,7 @@
 // Usage: tools/build-presets [preset-name]
 
 import { runner } from 'hygen';
-import presets from '../src/presets.js';
+import presets from '../src/presets.mjs';
 
 process.env.HYGEN_OVERWRITE = 1
 

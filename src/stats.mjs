@@ -1,4 +1,4 @@
-import constants from './constants';
+import constants from './constants.mjs';
 
 const TYPE = constants.TYPE
 const HAND_TYPE = constants.HAND_TYPE

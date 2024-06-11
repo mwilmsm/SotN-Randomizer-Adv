@@ -1,5 +1,5 @@
-import constants from './constants';
-import util from './util';
+import constants from './constants.mjs';
+import util from './util.mjs';
 
 const musicBySong = {
   LOST_PAINTING: [

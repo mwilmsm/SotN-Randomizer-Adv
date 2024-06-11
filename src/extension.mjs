@@ -1,4 +1,4 @@
-import constants from './constants';
+import constants from './constants.mjs';
 
 const ZONE = constants.ZONE
 const EXTENSION = constants.EXTENSION
@@ -9,7 +9,7 @@ function util() {
   if (self) {
     util = self.sotnRando.util
   } else {
-    util = require('./util')
+    util = require('./util.mjs')
   }
   return util
 }
