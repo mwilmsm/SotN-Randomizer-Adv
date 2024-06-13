@@ -28,7 +28,7 @@ const presets = [
     "beyond",
     "breach",
     "grand-tour",
-    "crash-Course",
+    "crash-course",
     "forge",
     "lookingglass",
     "skinwalker",
