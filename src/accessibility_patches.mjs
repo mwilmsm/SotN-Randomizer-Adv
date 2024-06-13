@@ -1,4 +1,4 @@
-import util from './util.mjs';
+import * as util from './util.mjs';
 
 const POWER_OF_MIST_CLUT = 0x000EEFEE
 const POWER_OF_WOLF_CLUT = 0x000EEF8E

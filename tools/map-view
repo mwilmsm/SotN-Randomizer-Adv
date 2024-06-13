@@ -3,10 +3,10 @@
 // Usage: tools/map-view <path-to-rom> <zone>
 
 import * as fs from 'fs';
-import constants from '../src/constants';
+import * as constants from '../src/constants';
 import items from '../src/items';
 import relics from '../src/relics';
-import util from '../src/util';
+import * as util from '../src/util';
 
 const ZONE = constants.ZONE
 const zones = constants.zones

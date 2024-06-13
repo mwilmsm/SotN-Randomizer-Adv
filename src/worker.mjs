@@ -1,10 +1,10 @@
-import constants from './constants';
+import * as constants from './constants';
 import eccEdcCalc from '.eccEdcCalc';
-import errors from './errors';
+import * as errors from './errors';
 import randomizeRelics from './randomizeRelics';
 import randomizeItems from './randomizeItems';
 import seedrandom from '.seedrandom';
-import util from './util';
+import * as util from './util';
 
 function randomizeWorker() {  
 

@@ -1,8 +1,8 @@
-import constants from './constants.mjs';
-import errors from './errors.mjs';
+import * as constants from './constants.mjs';
+import * as errors from './errors.mjs';
 import extension from './extension.mjs';
 import relics from './relics.mjs';
-import util from './util.mjs';
+import * as util from './util.mjs';
 import items from './items.mjs';
 
 

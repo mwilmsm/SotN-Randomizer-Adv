@@ -1,11 +1,12 @@
-import constants from './constants.mjs';
+import * as constants from './constants.mjs';
 import enemies from './enemies.mjs';
-import errors from './errors.mjs';
+import * as errors from './errors.mjs';
 import extension from './extension.mjs';
 import items from './items.mjs';
 import relics from './relics.mjs';
 import crypto from 'crypto';
 import fs from 'fs';
+import * as presets from './build/presets/index.js';
 
 export function sha256(input) {
   return crypto.subtle.digest('SHA-256', input).then(function (buf) {
@@ -1603,15 +1604,7 @@ export function optionsFromString(randomize) {
 }
 
 export function presets() {
-  try {
-    if (self) {
-      return self.sotnRando.presets
-    } else {
-      return require('../build/presets')
-    }
-  } catch (err) {
-    return []
-  }
+  return presets;
 }
 
 export function presetFromName(name) {
@@ -2967,7 +2960,7 @@ Preset.options = function options(options) {
     }).pop()
     if (!preset && !self) {
       try {
-        preset = require('../build/presets/' + options.preset)
+        preset = presets[options.preset];
       } catch (err) {
         if (err.code !== 'MODULE_NOT_FOUND') {
           console.error(err.stack)
@@ -3412,6 +3405,7 @@ PresetBuilder.prototype.inherits = function inherits(id) {
       return preset.id === id
     }).pop()
   } else {
+    console.log(id);
     preset = require('../build/presets/' + id)
   }
   if ('enemyDrops' in preset) {

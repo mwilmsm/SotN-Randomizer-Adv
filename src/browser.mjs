@@ -1,7 +1,7 @@
-import constants from './constants';
-import errors from './errors';
+import * as constants from './constants';
+import * as errors from './errors';
 import extension from './extension';
-import util from './util.mjs';
+import * as util from './util.mjs';
 import presets from './presets';
 import randomizeStats from './randomizeStats';
 import randomizeItems from './randomizeItems';

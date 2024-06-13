@@ -1,22 +1,25 @@
 #!/usr/bin/env node
-'use strict'
-const crypto = require('crypto')
-const fs = require('fs')
-const path = require('path')
-const os = require('os')
-const Worker = require('worker_threads').Worker
-const constants = require('./src/constants')
-const errors = require('./src/errors')
-const extension = require('./src/extension')
-const presets = require('./build/presets')
-const randomizeStats = require('./src/randomize_stats')
-const randomizeRelics = require('./src/randomize_relics')
-const randomizeItems = require('./src/randomize_items')
-const randomizeMusic = require('./src/randomize_music')
-const applyAccessibilityPatches = require('./src/accessibility_patches')
-const relics = require('./src/relics')
-const util = require('./src/util')
-let version = require('./package').version
+
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { Worker } from 'worker_threads';
+import * as constants from './src/constants.mjs';
+import * as errors from './src/errors.mjs';
+import * as extension from './src/extension.mjs';
+import * as presets from './build/presets/index.js';
+import * as randomizeMusic from './src/randomize_music.mjs';
+import * as randomizeRelics from './src/randomize_relics.mjs';
+import * as randomizeStats from './src/randomize_stats.mjs';
+import * as applyAccessibilityPatches from './src/accessibility_patches.mjs';
+import * as relics from './src/relics.mjs';
+import * as util from './src/util.mjs';
+import * as pkg from './package.json' with {type: 'json'};
+
+const version = pkg.version;
+
+Error.stackTraceLimit = Infinity;
 
 const optionsHelp = [
   'The options string may contain any of the following:',

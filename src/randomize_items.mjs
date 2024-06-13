@@ -1,6 +1,6 @@
-import constants from './constants.mjs';
+import * as constants from './constants.mjs';
 import enemies from './enemies.mjs';
-import util from './util.mjs';
+import * as util from './util.mjs';
 
 const TYPE = constants.TYPE
 const ZONE = constants.ZONE
