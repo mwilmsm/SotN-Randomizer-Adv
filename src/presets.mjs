@@ -32,7 +32,11 @@ const presets = [
     "forge",
     "lookingglass",
     "skinwalker",
-    "summoner"
+    "summoner",
+    "agonizetwtw",
+    "stwosafe",
+    "open"
 ];
+
 
 export default presets;
