@@ -8,7 +8,7 @@ import { Worker } from 'worker_threads';
 import * as constants from './src/constants.mjs';
 import * as errors from './src/errors.mjs';
 import * as extension from './src/extension.mjs';
-import * as presets from './build/presets/index.js';
+import * as presets from './build/presets/index.mjs';
 import * as randomizeMusic from './src/randomize_music.mjs';
 import * as randomizeRelics from './src/randomize_relics.mjs';
 import * as randomizeStats from './src/randomize_stats.mjs';

@@ -22,7 +22,7 @@ function randomizeWorker() {
       url + 'build/presets/safe.js',
       url + 'build/presets/adventure.js',
       url + 'build/presets/og.js',
-      url + 'build/presets/guarded-og.js',
+      url + 'build/presets/guardedOg.js',
       url + 'build/presets/speedrun.js',
       url + 'build/presets/lycanthrope.js',
       url + 'build/presets/warlock.js',
