@@ -6,9 +6,12 @@ import { runner } from 'hygen';
 import presets from '../src/presets.mjs';
 
 process.env.HYGEN_OVERWRITE = 1
+Error.stackTraceLimit = Infinity;
 
-presets.forEach(function(name) {
-  runner(['preset', 'new', '--name', name], {
+// presets.forEach((name) => {
+  const name = "adventure";
+  console.log("name", name);
+  runner(['preset', 'new', name], {
     templates: '../templates',
     cwd: process.cwd(),
     logger: {
@@ -16,5 +19,6 @@ presets.forEach(function(name) {
       log: console.log.bind(console),
     },
     createPrompter: function() {},
-  })
-})
+    debug: true,
+  });
+// });
