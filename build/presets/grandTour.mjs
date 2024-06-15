@@ -3,7 +3,7 @@
 // this file with `npm run build-presets -- grandTour`.
 
   // Boilerplate.
-  import {PresetBuilder} from '../../src/util.mjs';
+  import { PresetBuilder } from '../../src/PresetBuilder.mjs';
 
   // Create PresetBuilder.
   const builder = PresetBuilder.fromJSON({"metadata":{"id":"grandTour","name":"Grand Tour","description":"Encourages sight-seeing","author":"eldri7ch & Mottzilla","weight":0},"inherits":"casual","relicLocationsExtension":"tourist","colorrandoMode":true,"music":false,"complexityGoal":{"min":8,"goals":["Holy glasses + Heart of Vlad + Tooth of Vlad + Rib of Vlad + Ring of Vlad + Eye of Vlad"]}})

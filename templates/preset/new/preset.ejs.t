@@ -6,7 +6,7 @@ to: build/presets/<%=name%>.mjs
 // this file with `npm run build-presets -- <%=name%>`.
 
   // Boilerplate.
-  import {PresetBuilder} from '../../src/util.mjs';
+  import { PresetBuilder } from '../../src/PresetBuilder.mjs';
 
   // Create PresetBuilder.
   const builder = PresetBuilder.fromJSON(<%-h.preset(name)%>)
