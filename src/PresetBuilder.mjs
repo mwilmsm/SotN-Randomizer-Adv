@@ -1,35 +1,56 @@
 import * as constants from './constants.mjs';
-import presets from '../build/presets/index.mjs';
+// import presets from '../build/presets/index.mjs';
+import Preset from './Preset.mjs';
+import {
+    assert,
+    getEnemyAlias,
+    getItemAlias,
+    getLocationAlias,
+    getRelicAlias, 
+    getZoneAlias,
+    locksFromArray,
+    locationFromName,
+    relicFromName
+} from './util.mjs';
+import items from './items.mjs';
+import enemies from './enemies.mjs';
+import locations from './extension.mjs';
 
 export class PresetBuilder {
 
-    metadata;
-    zoneAliases;
-    enemyAliases;
-    relicAliases;
-    locationAliases;
-    itemAliases;
+    antifreeze;
+    colorrando;
     drops;
+    enemyAliases;
     equipment;
-    items;
-    rewards;
-    locations;
     escapes;
     extension;
-    leakPrevention;
-    thrustSword;
-    target;
     goal;
-    stats;
-    music;
-    turkey;
-    colorrando;
+    itemAliases;
+    items;
+    leakPrevention;
+    locationAliases;
+    locations;
     magicmax;
-    antifreeze;
-    mypurse;
     mapcolor;
-    writes;
+    metadata;
+    music;
+    mypurse;
+    relicAliases;
+    rewards;
     self;
+    stats;
+    target;
+    thrustSword;
+    turkey;
+    writes;
+    zoneAliases;
+
+    static rewardsMap = {
+        'Heart Refresh': 'h',
+        'Neutron bomb': 'n',
+        'Potion': 'p',
+    };
 
     // Helper class to create relic location locks.
     constructor(metadata) {
@@ -83,10 +104,10 @@ export class PresetBuilder {
         this.self = {};
     }
 
-    static fromJSON(json) {
-        const builder = new PresetBuilder(json.metadata)
-        if ('alias' in json) {
-            json.alias.forEach(function (alias) {
+    static fromJSON(jsonObj) {
+        const builder = new PresetBuilder(jsonObj.metadata)
+        if ('alias' in jsonObj) {
+            jsonObj.alias.forEach(function (alias) {
                 if ('zone' in alias) {
                     builder.zoneAlias(alias.zone, alias.alias)
                 }
@@ -104,14 +125,14 @@ export class PresetBuilder {
                 }
             })
         }
-        if ('inherits' in json) {
-            builder.inherits(json.inherits)
+        if ('inherits' in jsonObj) {
+            builder.inherits(jsonObj.inherits)
         }
-        if ('itemLocations' in json) {
-            if (typeof (json.itemLocations) === 'boolean') {
-                builder.itemLocations(json.itemLocations)
-            } else if (Array.isArray(json.itemLocations)) {
-                json.itemLocations.forEach(function (itemLocation) {
+        if ('itemLocations' in jsonObj) {
+            if (typeof (jsonObj.itemLocations) === 'boolean') {
+                builder.itemLocations(jsonObj.itemLocations)
+            } else if (Array.isArray(jsonObj.itemLocations)) {
+                jsonObj.itemLocations.forEach(function (itemLocation) {
                     let zone = getZoneAlias.call(builder, itemLocation.zone)
                     if (zone !== '*') {
                         zone = constants.ZONE[zone]
@@ -127,8 +148,8 @@ export class PresetBuilder {
                 throw new Error('unsupported itemLocations type')
             }
         }
-        if ('blockItems' in json) {
-            json.blockItems.forEach(function (itemLocation) {
+        if ('blockItems' in jsonObj) {
+            jsonObj.blockItems.forEach(function (itemLocation) {
                 let zone = getZoneAlias.call(builder, itemLocation.zone)
                 if (zone !== '*') {
                     zone = constants.ZONE[zone]
@@ -141,11 +162,11 @@ export class PresetBuilder {
                 builder.blockItem.apply(builder, args)
             })
         }
-        if ('enemyDrops' in json) {
-            if (typeof (json.enemyDrops) === 'boolean') {
-                builder.enemyDrops(json.enemyDrops)
-            } else if (Array.isArray(json.enemyDrops)) {
-                json.enemyDrops.forEach(function (enemyDrop) {
+        if ('enemyDrops' in jsonObj) {
+            if (typeof (jsonObj.enemyDrops) === 'boolean') {
+                builder.enemyDrops(jsonObj.enemyDrops)
+            } else if (Array.isArray(jsonObj.enemyDrops)) {
+                jsonObj.enemyDrops.forEach(function (enemyDrop) {
                     const args = [enemyDrop.enemy]
                     if ('level' in enemyDrop) {
                         args.push(enemyDrop.level)
@@ -157,8 +178,8 @@ export class PresetBuilder {
                 throw new Error('unsupported enemyDrops type')
             }
         }
-        if ('blockDrops' in json) {
-            json.blockDrops.forEach(function (enemyDrop) {
+        if ('blockDrops' in jsonObj) {
+            jsonObj.blockDrops.forEach(function (enemyDrop) {
                 const args = [enemyDrop.enemy]
                 if ('level' in enemyDrop) {
                     args.push(enemyDrop.level)
@@ -167,11 +188,11 @@ export class PresetBuilder {
                 builder.blockDrops.apply(builder, args)
             })
         }
-        if ('prologueRewards' in json) {
-            if (typeof (json.prologueRewards) === 'boolean') {
-                builder.prologueRewards(json.prologueRewards)
-            } else if (Array.isArray(json.prologueRewards)) {
-                json.prologueRewards.forEach(function (prologueReward) {
+        if ('prologueRewards' in jsonObj) {
+            if (typeof (jsonObj.prologueRewards) === 'boolean') {
+                builder.prologueRewards(jsonObj.prologueRewards)
+            } else if (Array.isArray(jsonObj.prologueRewards)) {
+                jsonObj.prologueRewards.forEach(function (prologueReward) {
                     builder.prologueRewards(
                         prologueReward.item,
                         prologueReward.replacement,
@@ -181,19 +202,19 @@ export class PresetBuilder {
                 throw new Error('unsupported prologueRewards type')
             }
         }
-        if ('blockRewards' in json) {
-            json.blockRewards.forEach(function (blockedReward) {
+        if ('blockRewards' in jsonObj) {
+            jsonObj.blockRewards.forEach(function (blockedReward) {
                 builder.blockReward(
                     blockedReward.item,
                     blockedReward.replacement,
                 )
             })
         }
-        if ('startingEquipment' in json) {
-            if (typeof (json.startingEquipment) === 'boolean') {
-                builder.startingEquipment(json.startingEquipment)
-            } else if (Array.isArray(json.startingEquipment)) {
-                json.startingEquipment.forEach(function (startingEquipment) {
+        if ('startingEquipment' in jsonObj) {
+            if (typeof (jsonObj.startingEquipment) === 'boolean') {
+                builder.startingEquipment(jsonObj.startingEquipment)
+            } else if (Array.isArray(jsonObj.startingEquipment)) {
+                jsonObj.startingEquipment.forEach(function (startingEquipment) {
                     const key = startingEquipment.slot.toUpperCase().replace(' ', '_')
                     builder.startingEquipment(
                         constants.SLOT[key],
@@ -204,8 +225,8 @@ export class PresetBuilder {
                 throw new Error('unsupported startingEquipment type')
             }
         }
-        if ('blockEquipment' in json) {
-            json.blockEquipment.forEach(function (blockedEquipment) {
+        if ('blockEquipment' in jsonObj) {
+            jsonObj.blockEquipment.forEach(function (blockedEquipment) {
                 const key = blockedEquipment.slot.toUpperCase().replace(' ', '_')
                 builder.blockEquipment(
                     constants.SLOT[key],
@@ -213,20 +234,20 @@ export class PresetBuilder {
                 )
             })
         }
-        if ('relicLocations' in json) {
-            builder.relicLocations(json.relicLocations)
+        if ('relicLocations' in jsonObj) {
+            builder.relicLocations(jsonObj.relicLocations)
         }
-        if ('preventLeaks' in json) {
-            builder.preventLeaks(json.preventLeaks)
+        if ('preventLeaks' in jsonObj) {
+            builder.preventLeaks(jsonObj.preventLeaks)
         }
-        if ('thrustSwordAbility' in json) {
-            builder.thrustSwordAbility(json.thrustSwordAbility)
+        if ('thrustSwordAbility' in jsonObj) {
+            builder.thrustSwordAbility(jsonObj.thrustSwordAbility)
         }
-        if ('relicLocationsExtension' in json) {
-            builder.relicLocationsExtension(json.relicLocationsExtension)
+        if ('relicLocationsExtension' in jsonObj) {
+            builder.relicLocationsExtension(jsonObj.relicLocationsExtension)
         }
-        if ('lockLocation' in json) {
-            json.lockLocation.forEach(function (lockLocation) {
+        if ('lockLocation' in jsonObj) {
+            jsonObj.lockLocation.forEach(function (lockLocation) {
                 const locationName = getLocationAlias.call(
                     builder,
                     lockLocation.location,
@@ -257,8 +278,8 @@ export class PresetBuilder {
                 }
             })
         }
-        if ('placeRelic' in json) {
-            json.placeRelic.forEach(function (placeRelic) {
+        if ('placeRelic' in jsonObj) {
+            jsonObj.placeRelic.forEach(function (placeRelic) {
                 let relic = null
                 if (Array.isArray(placeRelic.relic)) {
                     relic = placeRelic.relic.map(function (relic) {
@@ -275,8 +296,8 @@ export class PresetBuilder {
                 builder.placeRelic(locationFromName(location), relic)
             })
         }
-        if ('replaceRelic' in json) {
-            json.replaceRelic.forEach(function (replaceRelic) {
+        if ('replaceRelic' in jsonObj) {
+            jsonObj.replaceRelic.forEach(function (replaceRelic) {
                 const relic = getRelicAlias.call(builder, replaceRelic.relic)
                 builder.replaceRelic(
                     relicFromName(relic).ability,
@@ -284,45 +305,45 @@ export class PresetBuilder {
                 )
             })
         }
-        if ('complexityGoal' in json) {
-            if (json.complexityGoal) {
-                const args = [json.complexityGoal.min]
-                if ('max' in json.complexityGoal) {
-                    args.push(json.complexityGoal.max)
+        if ('complexityGoal' in jsonObj) {
+            if (jsonObj.complexityGoal) {
+                const args = [jsonObj.complexityGoal.min]
+                if ('max' in jsonObj.complexityGoal) {
+                    args.push(jsonObj.complexityGoal.max)
                 }
-                args.push(locksFromArray.call(builder, json.complexityGoal.goals))
+                args.push(locksFromArray.call(builder, jsonObj.complexityGoal.goals))
                 builder.complexityGoal.apply(builder, args)
             } else {
-                builder.complexityGoal(false)
+                builder.complexityGoal(false);
             }
         }
-        if ('stats' in json) {
-            builder.randomizeStats(json.stats)
+        if ('stats' in jsonObj) {
+            builder.randomizeStats(jsonObj.stats)
         }
-        if ('music' in json) {
-            builder.randomizeMusic(json.music)
+        if ('music' in jsonObj) {
+            builder.randomizeMusic(jsonObj.music)
         }
-        if ('turkeyMode' in json) {
-            builder.turkeyMode(json.turkeyMode)
+        if ('turkeyMode' in jsonObj) {
+            builder.turkeyMode(jsonObj.turkeyMode)
         }
-        if ('colorrandoMode' in json) {
-            builder.colorrandoMode(json.colorrandoMode)
+        if ('colorrandoMode' in jsonObj) {
+            builder.colorrandoMode(jsonObj.colorrandoMode)
         }
-        if ('magicmaxMode' in json) {
-            builder.magicmaxMode(json.magicmaxMode)
+        if ('magicmaxMode' in jsonObj) {
+            builder.magicmaxMode(jsonObj.magicmaxMode)
         }
-        if ('antiFreezeMode' in json) {
-            builder.antiFreezeMode(json.antiFreezeMode)
+        if ('antiFreezeMode' in jsonObj) {
+            builder.antiFreezeMode(jsonObj.antiFreezeMode)
         }
-        if ('mypurseMode' in json) {
-            builder.mypurseMode(json.mypurseMode)
+        if ('mypurseMode' in jsonObj) {
+            builder.mypurseMode(jsonObj.mypurseMode)
         }
-        if ('mapcolorTheme' in json) {
-            builder.mapcolorTheme(json.mapcolorTheme)
+        if ('mapcolorTheme' in jsonObj) {
+            builder.mapcolorTheme(jsonObj.mapcolorTheme)
         }
-        if ('writes' in json) {
+        if ('writes' in jsonObj) {
             let lastAddress = 0
-            json.writes.forEach(function (write) {
+            jsonObj.writes.forEach(function (write) {
                 let address = lastAddress
                 if ('address' in write) {
                     address = parseInt(write.address)
@@ -383,13 +404,15 @@ export class PresetBuilder {
         this.itemAliases[alias] = what
     }
 
-    inherits(id) {
+    async inherits(id) {
         let preset;
 
-        preset = presets.find(p => p.id === id);
+        // preset = presets.find(p => p.id === id);
+        await import(`../build/presets/${id}.mjs`).then((module) => {
+            preset = module.default;
+        });
 
         console.log("id", id);
-        preset = presets[id];
         console.log("preset: ", preset);
         if ('enemyDrops' in preset) {
             if (typeof (preset.enemyDrops) === 'object') {
@@ -637,7 +660,7 @@ export class PresetBuilder {
             if (typeof (this.drops) !== 'object') {
                 this.drops = new Map()
             }
-            let enemy
+            let enemy;
             if (enemyName === constants.GLOBAL_DROP) {
                 enemy = enemyName
             } else if (enemyName === 'Librarian') {
@@ -1051,12 +1074,6 @@ export class PresetBuilder {
         this.items.blocked[zoneName].set(item, map)
     }
 
-    rewardsMap = {
-        'Heart Refresh': 'h',
-        'Neutron bomb': 'n',
-        'Potion': 'p',
-    }
-
     prologueRewards(itemName, replaceNames) {
         if (typeof (itemName) === 'boolean') {
             this.rewards = itemName
@@ -1069,18 +1086,17 @@ export class PresetBuilder {
             replaceNames = replaceNames.map(function (name) {
                 return getItemAlias.call(self, name)
             })
-            assert.oneOf(itemName, Object.getOwnPropertyNames(rewardsMap),
+            assert.oneOf(itemName, Object.getOwnPropertyNames(PresetBuilder.rewardsMap),
                 'Unknown reward item: ' + itemName)
             if (typeof (this.rewards) !== 'object') {
                 this.rewards = {}
             }
-            this.rewards[rewardsMap[itemName]] =
-                this.rewards[rewardsMap[itemName]] || []
+            this.rewards[PresetBuilder.rewardsMap[itemName]] ||= [];
             replaceNames.forEach(function (replaceName) {
                 const replace = items.filter(function (item) {
                     return item.name === replaceName
                 })[0]
-                self.rewards[rewardsMap[itemName]].push(replace)
+                self.rewards[PresetBuilder.rewardsMap[itemName]].push(replace)
             })
         }
     }
@@ -1104,19 +1120,19 @@ export class PresetBuilder {
         blocked = blocked.map(function (name) {
             return getItemAlias.call(self, name)
         })
-        assert.oneOf(itemName, Object.getOwnPropertyNames(rewardsMap),
+        assert.oneOf(itemName, Object.getOwnPropertyNames(PresetBuilder.rewardsMap),
             'Unknown reward item: ' + itemName)
         if (typeof (this.rewards) !== 'object') {
             this.rewards = {}
         }
         this.rewards.blocked = this.rewards.blocked || {}
-        this.rewards.blocked[rewardsMap[itemName]] =
-            this.rewards.blocked[rewardsMap[itemName]] || []
+        this.rewards.blocked[PresetBuilder.rewardsMap[itemName]] =
+            this.rewards.blocked[PresetBuilder.rewardsMap[itemName]] || []
         blocked.forEach(function (replaceName) {
             const replace = items.filter(function (item) {
                 return item.name === replaceName
             })[0]
-            self.rewards.blocked[rewardsMap[itemName]].push(replace)
+            self.rewards.blocked[PresetBuilder.rewardsMap[itemName]].push(replace)
         })
     }
 
@@ -1189,8 +1205,8 @@ export class PresetBuilder {
     replaceRelic(relic, item) {
         assert.equal(typeof (relic), 'string')
         assert.equal(typeof (item), 'string')
-        this.locations.replaced = this.locations.replaced || {}
-        this.locations.replaced[relic] = getItemAlias.call(this, item)
+        locations.replaced ||= {};
+        locations.replaced[relic] = getItemAlias.call(this, item)
     }
 
     // Enable/disable relic location randomization.
@@ -1212,7 +1228,7 @@ export class PresetBuilder {
     }
 
     // Set complexity target.
-    goal(complexityMin, complexityMax, goal) {
+    complexityGoal(complexityMin, complexityMax, goal) {
         if (arguments.length === 1 && typeof (complexityMin) !== 'number') {
             delete this.goal
             delete this.target

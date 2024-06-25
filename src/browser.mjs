@@ -1,21 +1,17 @@
+import applyAccessibilityPatches from './applyAccessibilityPatches';
 import * as constants from './constants';
 import * as errors from './errors';
 import extension from './extension';
-import * as util from './util.mjs';
 import presets from './presets';
-import randomizeStats from './randomizeStats';
-import randomizeItems from './randomizeItems';
-import randomizeRelics from './randomizeRelics';
 import randomizeMusic from './randomizeMusic';
-import applyAccessibilityPatches from './applyAccessibilityPatches';
-import relics from './relics.mjs';
+import randomizeRelics from './randomizeRelics';
+import randomizeStats from './randomizeStats';
+import * as util from './util.mjs';
 
 let info
 let currSeed
 let checksum
 let expectChecksum
-let haveChecksum  // unused
-let downloadReady
 let selectedFile
 let version
 

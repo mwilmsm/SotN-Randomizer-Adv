@@ -6,11 +6,10 @@ import items from './items.mjs';
 import relics from './relics.mjs';
 import crypto from 'crypto';
 import fs from 'fs';
-import presets from '../build/presets/index.mjs';
 import Preset from './Preset.mjs';
 
 let self = {
-  sotnRando: { constants, enemies, errors, extension, items, relics, crypto, presets }
+  sotnRando: { constants, enemies, errors, extension, items, relics, crypto }
 };
 
 export function sha256(input) {
