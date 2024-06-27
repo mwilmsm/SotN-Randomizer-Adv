@@ -16,7 +16,8 @@ import * as applyAccessibilityPatches from './src/accessibility_patches.mjs';
 import * as relics from './src/relics.mjs';
 import * as util from './src/util.mjs';
 import * as pkg from './package.json' with {type: 'json'};
-import optionsHelp from './tools/help/optionsHelp.mjs';
+import yargs from 'yargs/yargs';
+import { optionsHelp } from './tools/help/optionsHelp.mjs';
 import { dropsHelp } from './tools/help/dropsHelp.mjs';
 import { equipmentHelp } from './tools/help/equipmentHelp.mjs';
 import { itemsHelp } from './tools/help/itemsHelp.mjs';
@@ -112,8 +113,7 @@ function presetMetaHelp(preset) {
 }
 
 let eccEdcCalc
-import('yargs').then((yargs) => {
-  yargs.strict()
+  yargs().strict()
   .usage('$0 [options] [url]')
   .option('in-bin', {
     alias: 'i',
@@ -245,8 +245,7 @@ import('yargs').then((yargs) => {
     type: 'string',
   })
   .demandCommand(0, 1)
-});
-const argv = yargs.argv
+const argv = yargs().argv
 let options
 let seed
 let baseUrl
@@ -254,7 +253,7 @@ let expectChecksum
 let haveChecksum
 // Require at least one argument.
 if (process.argv.length < 3) {
-  yargs.showHelp()
+  yargs().showHelp()
   console.error('\nAt least 1 argument or option required')
   process.exit(1)
 }
@@ -772,4 +771,4 @@ if ('inBin' in argv) {
       fs.closeSync(fd)
     }
   }
-})()
+})
