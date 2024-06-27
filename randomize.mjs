@@ -260,7 +260,7 @@ if (process.argv.length < 3) {
 // Check for help.
 if ('help' in argv) {
   if (!argv.help) {
-    yargs.showHelp()
+    yargs().showHelp()
     process.exit()
   }
   const topics = {
@@ -287,7 +287,7 @@ if ('help' in argv) {
     console.log(topics[argv.help])
     process.exit()
   } else {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nUnknown help topic: ' + argv.help)
     process.exit(1)
   }
@@ -298,7 +298,7 @@ if (argv.compat) {
 // Check for seed string.
 if ('seed' in argv) {
   if ('noSeed' in argv) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nCannot specify seed if seed generation is disabled')
     process.exit(1)
   }
@@ -315,12 +315,12 @@ if (argv.noSeed) {
 // Check for expected checksum.
 if ('expectChecksum' in argv) {
   if (!('seed' in argv) && !argv._[0]) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nCannot specify checksum if not providing seed')
     process.exit(1)
   }
   if (!argv.expectChecksum.match(/^[0-9a-f]{1,3}$/)) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nInvalid checksum string')
     process.exit(1)
   }
@@ -332,7 +332,7 @@ if ('options' in argv) {
   try {
     options = util.optionsFromString(argv.options)
   } catch (e) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\n' + e.message)
     process.exit(1)
   }
@@ -349,7 +349,7 @@ if ('preset' in argv) {
       util.optionsFromString('p:' + argv.preset)
     )
   } catch (e) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\n' + e.message)
     process.exit(1)
   }
@@ -357,7 +357,7 @@ if ('preset' in argv) {
 // Check for preset file.
 if ('presetFile' in argv) {
   if (options && 'preset' in options) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nCannot specify options string preset when using a preset '
                   + 'file')
     process.exit(1)
@@ -386,7 +386,7 @@ if (options && 'preset' in options
       options = applied
     }
   } catch (err) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\n' + err.message)
     process.exit(1)
   }
@@ -407,12 +407,12 @@ if (options) {
 // Check for seed url.
 if (argv._[0]) {
   if ('noSeed' in argv) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nCannot specify url if seed generation is disabled')
     process.exit(1)
   }
   if ('presetFile' in argv) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nCannot specify url if using a preset file')
     process.exit(1)
   }
@@ -427,18 +427,18 @@ if (argv._[0]) {
       haveChecksum = true
     }
   } catch (e) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nInvalid url')
     process.exit(1)
   }
   if (seed === null) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nUrl does not contain seed')
     process.exit(1)
   }
   // Ensure seeds match if given using --seed.
   if ('seed' in argv && argv.seed.toString() !== seed) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nArgument seed is not url seed')
     process.exit(1)
   }
@@ -446,13 +446,13 @@ if (argv._[0]) {
   const optionStr = util.optionsToString(options)
   if (('options' in argv && argv.options !== optionStr)
       || ('preset' in argv && 'p:' + argv.preset !== optionStr)) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nArgument randomizations are not url randomizations')
     process.exit(1)
   }
   // Ensure checksum match if given using --expect-checksum.
   if ('expectChecksum' in argv && url.checksum != expectChecksum) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nArgument checksum is not url checksum')
     process.exit(1)
   }
@@ -490,7 +490,7 @@ if ('complexity' in argv) {
       const logic = util.presetFromName('safe').options().relicLocations
       applied.relicLocations = logic
     } else {
-      yargs.showHelp()
+      yargs().showHelp()
       console.error('\nRelic location randomization must be enabled to set ' +
                     'complexity')
       process.exit(1)
@@ -511,7 +511,7 @@ if ('complexity' in argv) {
       options = applied
     }
   } else {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nCompletion goals must be preset to set complexity')
     process.exit(1)
   }
@@ -540,7 +540,7 @@ if (argv.mypurse) { // Adds MP Vessel to replace Heart Vessel - eldrich
 if ('mapcolor' in argv && typeof(argv.mapcolor) !== 'undefined') {
   let termsAllowed = 'u,r,b,g,y,p,k'
   if (!(termsAllowed.includes(argv.mapcolor))) {
-    yargs.showHelp()
+    yargs().showHelp()
     console.error('\nMust contain a letter \'u\'(Blue), \'r\'(Crimson), \'b\'(Brown), \'g\'(Green), \'y\'(Gray), \'p\'(Purple), \'k\'(Pink)')
     process.exit(1)
   } else {
@@ -601,7 +601,7 @@ if ('inBin' in argv) {
           applied = util.Preset.options(options)
         }
       } catch (err) {
-        yargs.showHelp()
+        yargs().showHelp()
         console.error('\n' + err.message)
         process.exit(1)
       }
