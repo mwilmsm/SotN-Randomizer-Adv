@@ -1,4 +1,6 @@
 import * as constants from './constants.mjs';
+import items from './items.mjs';
+import * as util from './util.mjs';
 
   const EXTENSION = constants.EXTENSION
   const RELIC = constants.RELIC
@@ -6,26 +8,6 @@ import * as constants from './constants.mjs';
   const equipIdOffset = constants.equipIdOffset
   const invOffset = constants.equipmentInvIdOffset
   const tileIdOffset = constants.tileIdOffset
-
-  function items() {
-    let items
-    if (self) {
-      items = self.sotnRando.items
-    } else {
-      items = require('./items.mjs')
-    }
-    return items
-  }
-
-  function util() {
-    let util
-    if (self) {
-      util = self.sotnRando.util
-    } else {
-      util = require('./util.mjs')
-    }
-    return util
-  }
 
   function replaceShopRelicWithRelic(data, jewelOfOpen, relic) {
     const shopRelicNameAddress = 0x047d5650
@@ -62,49 +44,49 @@ import * as constants from './constants.mjs';
     let offset
     const id = item.id
     const zone = constants.zones[constants.ZONE.LIB]
-    const slots = util().itemSlots(item)
+    const slots = util.itemSlots(item)
     // Write item type.
-    const type = util().shopItemType(item)
-    data.writeChar(util().romOffset(zone, 0x134c), type)
+    const type = util.shopItemType(item)
+    data.writeChar(util.romOffset(zone, 0x134c), type)
     // Write item id.
-    const tileValue = util().tileValue(item, {shop: true})
-    data.writeShort(util().romOffset(zone, 0x134e), tileValue)
-    data.writeShort(util().romOffset(zone, 0x14d4), tileValue)
+    const tileValue = util.tileValue(item, {shop: true})
+    data.writeShort(util.romOffset(zone, 0x134e), tileValue)
+    data.writeShort(util.romOffset(zone, 0x14d4), tileValue)
     // Write short item type.
-    offset = util().romOffset(zone, 0x032b80)
+    offset = util.romOffset(zone, 0x032b80)
     offset = data.writeWord(offset, 0x96220000) // lhu v0, 0x0000 (s1)
     // Load byte item type.
-    offset = util().romOffset(zone, 0x033050)
+    offset = util.romOffset(zone, 0x033050)
     offset = data.writeWord(offset, 0x90a30000) // lbu v1, 0x0000 (a1)
-    offset = util().romOffset(zone, 0x033638)
+    offset = util.romOffset(zone, 0x033638)
     offset = data.writeWord(offset, 0x90234364) // lbu v1, 0x4364 (at)
-    offset = util().romOffset(zone, 0x03369c)
+    offset = util.romOffset(zone, 0x03369c)
     offset = data.writeWord(offset, 0x90224364) // lbu v0, 0x4364 (at)
-    offset = util().romOffset(zone, 0x033730)
+    offset = util.romOffset(zone, 0x033730)
     offset = data.writeWord(offset, 0x90234364) // lbu v1, 0x4364 (at)
-    offset = util().romOffset(zone, 0x03431c)
+    offset = util.romOffset(zone, 0x03431c)
     offset = data.writeWord(offset, 0x92620000) // lbu v0, 0x0000 (s3)
-    offset = util().romOffset(zone, 0x0343c0)
+    offset = util.romOffset(zone, 0x0343c0)
     offset = data.writeWord(offset, 0x92630000) // lbu v1, 0x0000 (s3)
-    offset = util().romOffset(zone, 0x034f10)
+    offset = util.romOffset(zone, 0x034f10)
     offset = data.writeWord(offset, 0x90430000) // lbu v1, 0x0000 (v0)
-    offset = util().romOffset(zone, 0x0359f4)
+    offset = util.romOffset(zone, 0x0359f4)
     offset = data.writeWord(offset, 0x92a30000) // lbu v1, 0x0000 (s5)
     // Load relic icon.
-    offset = util().romOffset(zone, 0x034fb4)
+    offset = util.romOffset(zone, 0x034fb4)
     offset = data.writeWord(offset, 0x00801021) // addu v0, a0, r0
     // Load relic id for purchase.
-    offset = util().romOffset(zone, 0x033750)
+    offset = util.romOffset(zone, 0x033750)
     offset = data.writeWord(offset, 0x00402021) // addu a0, v0, r0
     offset = data.writeWord(offset, 0x00000000) // nop
     offset = data.writeWord(offset, 0x00000000) // nop
     offset = data.writeWord(offset, 0x00000000) // nop
     // Entry point.
-    offset = util().romOffset(zone, 0x032b08)
+    offset = util.romOffset(zone, 0x032b08)
     offset = data.writeWord(offset, 0x08075180) // j 0x801d4600
     offset = data.writeWord(offset, 0x00000000) // nop
     // Equipped check.
-    offset = util().romOffset(zone, 0x054600)
+    offset = util.romOffset(zone, 0x054600)
     //                                          // ori v1, r0, id
     offset = data.writeWord(offset, 0x34030000 + id + equipIdOffset)
     slots.forEach(function(slot, index) {
@@ -127,10 +109,10 @@ import * as constants from './constants.mjs';
     offset = data.writeWord(offset, 0x0806cac7) // j 0x801b2b1c
     offset = data.writeWord(offset, 0x00000000) // nop
     // Entry point.
-    offset = util().romOffset(zone, 0x033050)
+    offset = util.romOffset(zone, 0x033050)
     offset = data.writeWord(offset, 0x08075190) // j 0x801d4640
     // Load base address.
-    offset = util().romOffset(zone, 0x054640)
+    offset = util.romOffset(zone, 0x054640)
     offset = data.writeWord(offset, 0x90a20001) // lbu v0, 0x0001 (a1)
     offset = data.writeWord(offset, 0x00000000) // nop
     offset = data.writeWord(offset, 0x2c4200ff) // sltiu v0, v0, 0x00ff
@@ -141,11 +123,11 @@ import * as constants from './constants.mjs';
     offset = data.writeWord(offset, 0x0806cc16) // j 0x801b3058
     offset = data.writeWord(offset, 0x00000000) // nop
     // Patch checker.
-    offset = util().romOffset(zone, 0x03317c)
+    offset = util.romOffset(zone, 0x03317c)
     offset = data.writeWord(offset, 0x080751a0) // j 0x801d4680
     offset = data.writeWord(offset, 0x00000000) // nop
     // Injection.
-    offset = util().romOffset(zone, 0x054680)
+    offset = util.romOffset(zone, 0x054680)
     slots.forEach(function(slot, index) {
       //                                          // lui v0, 0x8009
       offset = data.writeWord(offset, 0x3c028000 + (slot >>> 16))
@@ -170,11 +152,11 @@ import * as constants from './constants.mjs';
     offset = data.writeWord(offset, 0x0806cc69) // j 0x801b31a4
     offset = data.writeWord(offset, 0x00000000) // nop
     // Entry point.
-    offset = util().romOffset(zone, 0x03431c)
+    offset = util.romOffset(zone, 0x03431c)
     offset = data.writeWord(offset, 0x080751c0) // j 0x801d4700
     offset = data.writeWord(offset, 0x00000000) // nop
     // Quantity check.
-    offset = util().romOffset(zone, 0x054700)
+    offset = util.romOffset(zone, 0x054700)
     offset = data.writeWord(offset, 0x92620001) // lbu v0, 0x0001 (s3)
     offset = data.writeWord(offset, 0x00000000) // nop
     offset = data.writeWord(offset, 0x2c4200ff) // sltiu v0, v0, 0x00ff
@@ -196,7 +178,7 @@ import * as constants from './constants.mjs';
     let offset
     const id = item.id
     const zone = constants.zones[ZONE.RNZ1]
-    const slots = util().itemSlots(item)
+    const slots = util.itemSlots(item)
     // Patch instructions that load a relic.
     data.writeWord(
       relic.erase.instructions[0].addresses[0],
@@ -205,21 +187,21 @@ import * as constants from './constants.mjs';
     data.writeWord(0x059ee2c8, 0x3402000c)
     data.writeWord(0x059ee2d4, 0x24423a54)
     data.writeShort(0x059ee2e4, index)
-    offset = util().romOffset(zone, 0x2dd6)
+    offset = util.romOffset(zone, 0x2dd6)
     data.writeShort(offset, index)
     // Replace item in rewards table.
-    offset = util().romOffset(zone, zone.rewards)
+    offset = util.romOffset(zone, zone.rewards)
     data.writeShort(offset, id + tileIdOffset)
     // Replace item in items table.
-    offset = util().romOffset(zone, zone.items + 0x02 * index)
+    offset = util.romOffset(zone, zone.items + 0x02 * index)
     data.writeShort(offset, id + tileIdOffset)
     // Injection point.
-    offset = util().romOffset(zone, 0x02c860)
+    offset = util.romOffset(zone, 0x02c860)
     data.writeWord(offset, 0x0806fbb4)          // j 0x801beed0
-    offset = util().romOffset(zone, 0x02c868)
+    offset = util.romOffset(zone, 0x02c868)
     data.writeWord(offset, 0x00000000)          // nop
     // Get Bat defeat time.
-    offset = util().romOffset(zone, 0x3eed0)
+    offset = util.romOffset(zone, 0x3eed0)
     offset = data.writeWord(offset, 0x3c020003) // lui v0, 0x0003
     offset = data.writeWord(offset, 0x3442ca78) // ori v0, v0, 0xca78
     offset = data.writeWord(offset, 0x8c420000) // lw v0, 0x0000 (v0)
@@ -266,16 +248,16 @@ import * as constants from './constants.mjs';
     const zone = constants.zones[constants.ZONE.NO4]
     // Put relic in entity table.
     const itemId = item.itemId + constants.tileIdOffset
-    const goldRing = util().itemFromTileId(items(), itemId)
+    const goldRing = util.itemFromTileId(items, itemId)
     const entity = goldRing.tiles[0]
     entity.entities.forEach(function(addr) {
-      data.writeShort(util().romOffset(zone, addr + 8), relic.relicId)
+      data.writeShort(util.romOffset(zone, addr + 8), relic.relicId)
     })
     // Injection point.
-    offset = util().romOffset(zone, 0x04c590)
+    offset = util.romOffset(zone, 0x04c590)
     offset = data.writeWord(offset, 0x08077aed) // j 0x801debb4
     // Branch.
-    offset = util().romOffset(zone, 0x05ebb4)
+    offset = util.romOffset(zone, 0x05ebb4)
     offset = data.writeWord(offset, 0x10400003) // beq v0, r0, pc + 0x10
     offset = data.writeWord(offset, 0x00000000) // nop
     // Return.
@@ -313,22 +295,22 @@ import * as constants from './constants.mjs';
     // Replace entity with relic.
     const entity = [ 0x1328, 0x13be ]
     entity.forEach(function(addr) {
-      offset = util().romOffset(zone, addr + 0x00)
+      offset = util.romOffset(zone, addr + 0x00)
       data.writeShort(offset, 0x0180)
-      offset = util().romOffset(zone, addr + 0x02)
+      offset = util.romOffset(zone, addr + 0x02)
       data.writeShort(offset, 0x022c)
-      offset = util().romOffset(zone, addr + 0x04)
+      offset = util.romOffset(zone, addr + 0x04)
       data.writeShort(offset, 0x000b)
-      offset = util().romOffset(zone, addr + 0x06)
+      offset = util.romOffset(zone, addr + 0x06)
       data.writeShort(offset, 0x0000)
-      offset = util().romOffset(zone, addr + 0x08)
+      offset = util.romOffset(zone, addr + 0x08)
       data.writeShort(offset, relic.relicId)
     })
   }
 
   function replaceBossRelicWithItem(opts) {
     return function(data, relic, item, index) {
-      util().replaceBossRelicWithItem(opts)(
+      util.replaceBossRelicWithItem(opts)(
         data,
         relic,
         item,

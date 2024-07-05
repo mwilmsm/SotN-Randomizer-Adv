@@ -412,8 +412,8 @@ export class PresetBuilder {
             preset = module.default;
         });
 
-        console.log("id", id);
-        console.log("preset: ", preset);
+        // console.log("id", id);
+        // console.log("preset: ", preset);
         if ('enemyDrops' in preset) {
             if (typeof (preset.enemyDrops) === 'object') {
                 const self = this

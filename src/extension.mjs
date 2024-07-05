@@ -1,37 +1,28 @@
 import * as constants from './constants.mjs';
+import * as util from './util.mjs';
 
 const ZONE = constants.ZONE
 const EXTENSION = constants.EXTENSION
 const LOCATION = constants.LOCATION
-
-function util() {
-  let util
-  if (self) {
-    util = self.sotnRando.util
-  } else {
-    util = require('./util.mjs')
-  }
-  return util
-}
 
 function replaceTrioWithRelic(data, trio, relic) {
   let offset
   // Boss zone patches.
   const boss = constants.zones[constants.ZONE.RBO0]
   // Patch rewards.
-  offset = util().romOffset(
+  offset = util.romOffset(
     boss,
     boss.rewards + 0x02 * trio.reward.index,
   )
   data.writeShort(offset, relic.relicId)
   // Remove the condition for writing an item tile.
-  offset = util().romOffset(boss, 0x026088)
+  offset = util.romOffset(boss, 0x026088)
   offset = data.writeWord(offset, 0x34020000) // ori v0, r0, 0x0000
   // Regular zone patches.
   const zone = constants.zones[constants.ZONE.RARE]
   // Replace entities.
   trio.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000b)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, relic.relicId)
@@ -40,7 +31,7 @@ function replaceTrioWithRelic(data, trio, relic) {
 
 function replaceTrioRelicWithItem(opts) {
   return function (data, trio, item, index) {
-    util().replaceBossRelicWithItem(opts)(
+    util.replaceBossRelicWithItem(opts)(
       data,
       trio,
       item,
@@ -48,7 +39,7 @@ function replaceTrioRelicWithItem(opts) {
     )
     const zone = constants.zones[constants.ZONE.RARE]
     trio.entity.entities.forEach(function (entity) {
-      let addr = util().romOffset(zone, entity + 0x06)
+      let addr = util.romOffset(zone, entity + 0x06)
       addr = data.writeShort(addr, 0x0010)
     })
   }
@@ -61,7 +52,7 @@ function replaceConfessionalWithRelic(data, confessional, relic) {
   data.writeWord(0x4678bba, 0x00500070)
   // Replace entities.
   confessional.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000b)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, relic.relicId)
@@ -75,7 +66,7 @@ function replaceConfessionalWithItem(data, confessional, item, index) {
   data.writeWord(0x4678bba, 0x00500070)
   // Replace entities.
   confessional.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000c)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, item.relicId)
@@ -91,7 +82,7 @@ function replaceTelescopeWithRelic(data, telescope, relic) {
   data.writeWord(0x49d5a0c, 0x00A00160)
   // Replace entities.
   telescope.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000b)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, relic.relicId)
@@ -105,7 +96,7 @@ function replaceTelescopeWithItem(data, telescope, item, index) {
   data.writeWord(0x49d5a0c, 0x00A00160)
   // Replace entities.
   telescope.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000c)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, item.relicId)
@@ -119,7 +110,7 @@ function replaceCloakedKnightWithRelic(data, cloakedKnight, relic) {
   const zone = constants.zones[constants.ZONE.NZ1]
   // Replace entities.
   cloakedKnight.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000b)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, relic.relicId)
@@ -136,7 +127,7 @@ function replaceCloakedKnightWithItem(data, cloakedKnight, item, index) {
   data.writeWord(0x5575902, 0x01150280)
   // Replace entities.
   cloakedKnight.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000c)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, item.itemId)
@@ -153,7 +144,7 @@ function replaceWaterfallVesselWithRelic(data, waterfallVessel, relic) {
   data.writeWord(0x4c34fa6, 0x00a300a0)
   // Replace entities.
   waterfallVessel.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000b)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, relic.relicId)
@@ -167,7 +158,7 @@ function replaceWaterfallVesselWithItem(data, waterfallVessel, item, index) {
   data.writeWord(0x4c34fa6, 0x00a300a0)
   // Replace entities.
   waterfallVessel.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000c)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, item.relicId)
@@ -184,7 +175,7 @@ function replaceBlackMarbleVatWithRelic(data, blackMarbleVat, relic) {
   data.writeWord(0x4f8a12c, 0x00a30280)
   // Replace entities.
   blackMarbleVat.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000b)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, relic.relicId)
@@ -199,7 +190,7 @@ function replaceBlackMarbleVatWithItem(data, blackMarbleVat, item, index) {
   data.writeWord(0x4f8a12c, 0x00a30280)
   // Replace entities.
   blackMarbleVat.entity.entities.forEach(function (entity) {
-    let addr = util().romOffset(zone, entity + 0x04)
+    let addr = util.romOffset(zone, entity + 0x04)
     addr = data.writeShort(addr, 0x000c)
     addr = data.writeShort(addr, 0x0010)
     addr = data.writeShort(addr, item.relicId)

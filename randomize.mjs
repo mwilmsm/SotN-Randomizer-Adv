@@ -2,29 +2,32 @@
 
 import crypto from 'crypto';
 import fs from 'fs';
-import path from 'path';
 import os from 'os';
+import path from 'path';
+import seedrandom from 'seedrandom';
 import { Worker } from 'worker_threads';
+import yargsFn from 'yargs/yargs';
+import presets from './build/presets/index.mjs';
+import yargsOptions from './opts.mjs';
+import * as pkg from './package.json' with { type: 'json' };
+import * as applyAccessibilityPatches from './src/accessibility_patches.mjs';
 import * as constants from './src/constants.mjs';
+import eccEdcCalc from './src/ecc-edc-recalc-js.mjs';
 import * as errors from './src/errors.mjs';
 import * as extension from './src/extension.mjs';
-import presets from './build/presets/index.mjs';
 import * as randomizeMusic from './src/randomize_music.mjs';
 import * as randomizeRelics from './src/randomize_relics.mjs';
 import * as randomizeStats from './src/randomize_stats.mjs';
-import * as applyAccessibilityPatches from './src/accessibility_patches.mjs';
 import * as relics from './src/relics.mjs';
 import * as util from './src/util.mjs';
-import * as pkg from './package.json' with {type: 'json'};
-import yargsFn from 'yargs/yargs';
-import { optionsHelp } from './tools/help/optionsHelp.mjs';
 import { dropsHelp } from './tools/help/dropsHelp.mjs';
 import { equipmentHelp } from './tools/help/equipmentHelp.mjs';
 import { itemsHelp } from './tools/help/itemsHelp.mjs';
-import { rewardsHelp } from './tools/help/rewardsHelp.mjs';
-import { writesHelp } from './tools/help/writesHelp.mjs';
+import { optionsHelp } from './tools/help/optionsHelp.mjs';
 import { presetHelp } from './tools/help/presetHelp.mjs';
+import { rewardsHelp } from './tools/help/rewardsHelp.mjs';
 import { tournamentHelp } from './tools/help/tournamentHelp.mjs';
+import { writesHelp } from './tools/help/writesHelp.mjs';
 
 const version = pkg.version;
 
@@ -112,130 +115,8 @@ function presetMetaHelp(preset) {
   return info.join('\n')
 }
 
-let eccEdcCalc
 const yargs = yargsFn(process.argv.slice(2)).strict().usage('$0 [options] [url]')
-  .option('in-bin', {
-    alias: 'i',
-    describe: 'Path to vanilla .bin file',
-    conflicts: ['no-seed'],
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('out', {
-    alias: 'o',
-    describe: [
-      'If used with `in-bin` option, path to write randomized .bin file, ',
-      'otherwise, path to write PPF file',
-    ].join(''),
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('seed', {
-    alias: 's',
-    describe: 'Randomization seed',
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('options', {
-    alias: 'opt',
-    describe: 'Randomizations (`--help options`)',
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('expect-checksum', {
-    alias: 'e',
-    describe: 'Verify checksum',
-    conflicts: ['no-seed'],
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('url', {
-    alias: 'u',
-    description: 'Print seed url using optional base',
-    type: 'string',
-  })
-  .option('race', {
-    alias: 'r',
-    describe: 'Same as -uvv',
-    type: 'boolean',
-  })
-  .option('preset', {
-    alias: 'p',
-    describe: 'Use preset',
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('preset-file', {
-    alias: 'f',
-    describe: 'Use preset file',
-    type: 'string',
-    requiresArg: true,
-    conflicts: ['preset'],
-  })
-  .option('complexity', {
-    alias: 'c',
-    describe: 'Shortcut to adjust seed complexity',
-    type: 'number',
-    requiresArg: true,
-  })
-  .option('tournament', {
-    alias: 't',
-    describe: 'Enable tournament mode (`--help tournament`)',
-    type: 'boolean',
-  })
-  .option('colorrando', {
-    alias: 'l',
-    describe: 'Enable color palette randomizing for various things',
-    type: 'boolean',
-  })
-  .option('magicmax', {
-    alias: 'x',
-    describe: 'Enable replace Heart Max with Magic Max Vessels',
-    type: 'boolean',
-  })
-  .option('antifreeze', {
-    alias: 'z',
-    describe: 'Enable Anti-Freeze Mode, removes screen freezes from level-up & more.',
-    type: 'boolean',
-  })
-  .option('mypurse', {
-    alias: 'y',
-    describe: 'Prevents Death from stealing your belongings.',
-    type: 'boolean',
-  })
-  .option('mapcolor', {
-    alias: 'm',
-    describe: 'Change map color',
-    type: 'string',
-    requiresArg: true,
-  })
-  .option('disable-accessibility-patches', {
-    alias: 'a',
-    describe: 'Disable accessibility patches',
-    type: 'boolean',
-  })
-  .option('no-seed', {
-    alias: 'n',
-    describe: 'Disable seed generation',
-    conflicts: ['in-bin', 'expect-checksum'],
-    type: 'boolean',
-  })
-  .option('verbose', {
-    alias: 'v',
-    describe: 'Verbosity level',
-    type: 'count',
-    default: undefined,
-  })
-  .option('quiet', {
-    alias: 'q',
-    describe: 'Suppress output',
-    conflicts: 'verbose',
-    type: 'boolean',
-  })
-  .option('compat', {
-    type: 'string',
-    requiresArg: true,
-  })
+.options(yargsOptions)
   .hide('compat')
   .help(false)
   .option('help', {
@@ -357,12 +238,11 @@ if ('preset' in argv) {
 if ('presetFile' in argv) {
   if (options && 'preset' in options) {
     yargs().showHelp()
-    console.error('\nCannot specify options string preset when using a preset '
-                  + 'file')
+    console.error('\nCannot specify options string preset when using a preset file')
     process.exit(1)
   }
   const relative = path.relative(path.dirname(__filename), argv.presetFile)
-  const preset = require('./' + relative)
+  const preset = await import('./' + relative);
   options = Object.assign(
     options || {},
     util.PresetBuilder.fromJSON(preset).build().options()
@@ -559,7 +439,6 @@ let fd
 let size
 // Read bin file if provided.
 if ('inBin' in argv) {
-  eccEdcCalc = require('./src/ecc-edc-recalc-js')
   let digest
   if (!('out' in argv)) {
     fd = fs.openSync(argv.inBin, 'r+')
@@ -608,7 +487,7 @@ if ('inBin' in argv) {
         let rng
         let result
         // Randomize stats.
-        rng = new require('seedrandom')(util.saltSeed(
+        rng = new seedrandom(util.saltSeed(
           version,
           options,
           seed,
@@ -634,7 +513,7 @@ if ('inBin' in argv) {
         )
         util.mergeInfo(info, result.info)
         // Write relics mapping.
-        rng = new require('seedrandom')(util.saltSeed(
+        rng = new seedrandom(util.saltSeed(
           version,
           options,
           seed,
@@ -661,7 +540,7 @@ if ('inBin' in argv) {
         check.apply(result.data)
         util.mergeInfo(info, result.info)
         // Randomize music.
-        rng = new require('seedrandom')(util.saltSeed(
+        rng = new seedrandom(util.saltSeed(
           version,
           options,
           seed,

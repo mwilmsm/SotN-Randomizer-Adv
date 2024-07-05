@@ -8,10 +8,6 @@ import crypto from 'crypto';
 import fs from 'fs';
 import Preset from './Preset.mjs';
 
-let self = {
-  sotnRando: { constants, enemies, errors, extension, items, relics, crypto }
-};
-
 export function sha256(input) {
   return crypto.subtle.digest('SHA-256', input).then(function (buf) {
     return bufToHex(new Uint8Array(buf))
