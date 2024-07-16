@@ -7,6 +7,16 @@ import relics from './relics.mjs';
 import crypto from 'crypto';
 import fs from 'fs';
 import Preset from './Preset.mjs';
+import presets from './presets.mjs';
+
+function loadAllPresets() {
+  let loadedPresets = [];
+  for (const preset in presets) {
+    loadedPresets.push(PresetBuilder.fromJson(preset));
+  }
+  console.log(loadedPresets);
+  return loadedPresets;
+}
 
 export function sha256(input) {
   return crypto.subtle.digest('SHA-256', input).then(function (buf) {
@@ -1604,10 +1614,11 @@ export function optionsFromString(randomize) {
 }
 
 export function presetFromName(name) {
-  const all = presets;
+  const all = loadAllPresets();
   return all.filter(function (preset) {
+    console.log(JSON.stringify(preset));
     return 'id' in preset && preset.id === name
-  }).pop()
+  }).pop();
 }
 
 export function optionsToString(options, disableRecurse) {
@@ -2205,7 +2216,9 @@ export function optionsToUrl(version, options, checksum, seed, baseUrl) {
 }
 
 export function optionsFromUrl(url) {
-  url = new URL(url)
+  console.log("optionsFromUrl entered");
+  console.log(url);
+  url = new URL(url);
   const args = url.search.slice(1).split(',')
   const baseUrl = url.origin + url.pathname
   const presets = Object.getOwnPropertyNames(constants.optionsUrls)
@@ -2230,10 +2243,11 @@ export function optionsFromUrl(url) {
   }
   seed = decodeURIComponent(args.pop())
   checksum = parseInt(args.pop(), 16)
+  console.log("optionsFromUrl exited");
   return {
-    options: options,
-    checksum: checksum,
-    seed: seed,
+    options,
+    checksum,
+    seed,
   }
 }
 

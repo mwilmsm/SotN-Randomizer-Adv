@@ -26,8 +26,9 @@ import { itemsHelp } from './tools/help/itemsHelp.mjs';
 import { optionsHelp } from './tools/help/optionsHelp.mjs';
 import { presetHelp } from './tools/help/presetHelp.mjs';
 import { rewardsHelp } from './tools/help/rewardsHelp.mjs';
-import { tournamentHelp } from './tools/help/tournamentHelp.mjs';
 import { writesHelp } from './tools/help/writesHelp.mjs';
+import Preset from './src/Preset.mjs';
+import { PresetBuilder } from './src/PresetBuilder.mjs';
 
 const version = pkg.version;
 
@@ -109,7 +110,7 @@ function presetMetaHelp(preset) {
     info.push('')
     info.push('  Complexity target: '
               + parts[0] + ' <= depth'
-              + (parts.length === 2 ? ' <= ' + parts[1] : ''))
+              + (parts.length === 2 ? ' <= ' + parts[1] : ''));
     info.push('  Goals: ' + options.relicLocations[target].join('-'))
   }
   return info.join('\n')
@@ -139,50 +140,14 @@ if (process.argv.length < 3) {
 }
 // Check for help.
 if ('help' in argv) {
-  if (!argv.help) {
-    yargs.showHelp()
-    process.exit()
-  }
-  const topics = {
-    options: optionsHelp,
-    drops: dropsHelp,
-    equipment: equipmentHelp,
-    items: itemsHelp,
-    rewards: rewardsHelp,
-    relics: relicsHelp,
-    writes: writesHelp,
-    tournament: tournamentHelp,
-    preset: presetHelp,
-  }
-  const script = path.basename(process.argv[1])
-  Object.getOwnPropertyNames(topics).forEach(function(topic) {
-    topics[topic] = topics[topic].replace(/\$0/g, script)
-  }, {})
-  presets.forEach(function(preset) {
-    if (!preset.hidden) {
-      topics[preset.id] = presetMetaHelp(preset)
-    }
-  })
-  if (argv.help in topics) {
-    console.log(topics[argv.help])
-    process.exit()
-  } else {
-    yargs().showHelp()
-    console.error('\nUnknown help topic: ' + argv.help)
-    process.exit(1)
-  }
+  handleHelpArg();
 }
 if (argv.compat) {
   version = argv.compat
 }
 // Check for seed string.
 if ('seed' in argv) {
-  if ('noSeed' in argv) {
-    yargs().showHelp()
-    console.error('\nCannot specify seed if seed generation is disabled')
-    process.exit(1)
-  }
-  seed = argv.seed.toString()
+  handleSeedArg();
 }
 // Check for base url.
 if (argv.url) {
@@ -194,59 +159,19 @@ if (argv.noSeed) {
 }
 // Check for expected checksum.
 if ('expectChecksum' in argv) {
-  if (!('seed' in argv) && !argv._[0]) {
-    yargs().showHelp()
-    console.error('\nCannot specify checksum if not providing seed')
-    process.exit(1)
-  }
-  if (!argv.expectChecksum.match(/^[0-9a-f]{1,3}$/)) {
-    yargs().showHelp()
-    console.error('\nInvalid checksum string')
-    process.exit(1)
-  }
-  expectChecksum = parseInt(argv.expectChecksum, 16)
-  haveChecksum = true
+  handleExpectChecksumArg();
 }
 // Check for randomization string.
 if ('options' in argv) {
-  try {
-    options = util.optionsFromString(argv.options)
-  } catch (e) {
-    yargs().showHelp()
-    console.error('\n' + e.message)
-    process.exit(1)
-  }
+  handleOptionsArg();
 }
 // Check for preset.
 if ('preset' in argv) {
-  try {
-    if (options && 'preset' in options && options.preset !== argv.preset) {
-      throw new Error('Command line option preset conflits with options '
-                      + 'string preset')
-    }
-    options = Object.assign(
-      options || {},
-      util.optionsFromString('p:' + argv.preset)
-    )
-  } catch (e) {
-    yargs().showHelp()
-    console.error('\n' + e.message)
-    process.exit(1)
-  }
+  handlePresetArg();
 }
 // Check for preset file.
 if ('presetFile' in argv) {
-  if (options && 'preset' in options) {
-    yargs().showHelp()
-    console.error('\nCannot specify options string preset when using a preset file')
-    process.exit(1)
-  }
-  const relative = path.relative(path.dirname(__filename), argv.presetFile)
-  const preset = await import('./' + relative);
-  options = Object.assign(
-    options || {},
-    util.PresetBuilder.fromJSON(preset).build().options()
-  )
+  await handlePresetFileArg();
 }
 // If a preset and an options string are specified, determine if the options
 // are just duplicate options of the preset.
@@ -265,7 +190,7 @@ if (options && 'preset' in options
       options = applied
     }
   } catch (err) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\n' + err.message)
     process.exit(1)
   }
@@ -284,40 +209,41 @@ if (options) {
 }
 
 // Check for seed url.
-if (argv._[0]) {
+if (argv._[0]) {``
   if ('noSeed' in argv) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nCannot specify url if seed generation is disabled')
     process.exit(1)
   }
   if ('presetFile' in argv) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nCannot specify url if using a preset file')
     process.exit(1)
   }
   let url
   try {
-    url = util.optionsFromUrl(argv._[0])
-    argv.race = true
-    options = url.options
-    seed = url.seed
-    expectChecksum = url.checksum
+    console.log(JSON.stringify(argv, null, 2));
+    url = util.optionsFromUrl(argv._[0]);
+    argv.race = true;
+    options = url.options;
+    seed = url.seed;
+    expectChecksum = url.checksum;
     if (expectChecksum) {
-      haveChecksum = true
+      haveChecksum = true;
     }
   } catch (e) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nInvalid url')
     process.exit(1)
   }
   if (seed === null) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nUrl does not contain seed')
     process.exit(1)
   }
   // Ensure seeds match if given using --seed.
   if ('seed' in argv && argv.seed.toString() !== seed) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nArgument seed is not url seed')
     process.exit(1)
   }
@@ -325,13 +251,13 @@ if (argv._[0]) {
   const optionStr = util.optionsToString(options)
   if (('options' in argv && argv.options !== optionStr)
       || ('preset' in argv && 'p:' + argv.preset !== optionStr)) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nArgument randomizations are not url randomizations')
     process.exit(1)
   }
   // Ensure checksum match if given using --expect-checksum.
   if ('expectChecksum' in argv && url.checksum != expectChecksum) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nArgument checksum is not url checksum')
     process.exit(1)
   }
@@ -356,70 +282,28 @@ if (!options) {
 }
 // Check for complexity setting.
 if ('complexity' in argv) {
-  let applied = Object.assign({}, options)
-  // Check for preset.
-  if ('preset' in applied) {
-    applied = util.Preset.options(applied)
-  } else if (!('relicLocations' in options)) {
-    appield = util.Preset.options(Object.assign({preset: 'safe'}, options))
-  }
-  if (typeof applied.relicLocations !== 'object') {
-    if (applied.relicLocations) {
-      // Inherit safe relic locations.
-      const logic = util.presetFromName('safe').options().relicLocations
-      applied.relicLocations = logic
-    } else {
-      yargs().showHelp()
-      console.error('\nRelic location randomization must be enabled to set ' +
-                    'complexity')
-      process.exit(1)
-    }
-  }
-  // Get seed goals.
-  let complexity = Object.getOwnPropertyNames(applied.relicLocations).filter(
-    function(key) {
-      return /^[0-9]+$/.test(key)
-    }
-  )
-  if (complexity.length) {
-    complexity = complexity.pop()
-    if (parseInt(complexity) !== argv.complexity) {
-      const goals = applied.relicLocations[complexity]
-      delete applied.relicLocations[complexity]
-      applied.relicLocations[argv.complexity] = goals
-      options = applied
-    }
-  } else {
-    yargs().showHelp()
-    console.error('\nCompletion goals must be preset to set complexity')
-    process.exit(1)
-  }
+  handleComplexityArg();
 }
 // Enable tournament mode if specified.
-if (argv.tournament) {
-  options.tournamentMode = true
-}
+  options.tournamentMode = argv.tournament;
 // Enable color rando mode if specified. - MottZilla
-if (argv.colorrando) { // Enable Color Randomizations
-  options.colorrandoMode = true
-}
+// Enable Color Randomizations
+  options.colorrandoMode = argv.colorrando;
 // Enable magic max mode if specified. - MottZilla
-if (argv.magicmax) { // Adds MP Vessel to replace Heart Vessel - eldrich
-  options.magicmaxMode = true
-}
+// Adds MP Vessel to replace Heart Vessel - eldrich
+  options.magicmaxMode = argv.magicmax;
 // Enable anti-freeze mode if specified. - eldri7ch
-if (argv.antifreeze) { // Removes screen freezes from level-up and acquisitions - eldrich
-  options.antiFreezeMode = true
-}
+ // Removes screen freezes from level-up and acquisitions - eldrich
+  options.antiFreezeMode = argv.antifreeze;
 // Enable my purse mode if specified. - eldri7ch
-if (argv.mypurse) { // Adds MP Vessel to replace Heart Vessel - eldrich
-  options.mypurseMode = true
-}
+// Adds MP Vessel to replace Heart Vessel - eldrich
+  options.mypurseMode = argv.mypurse;
+
 // Map Color Features if specified. - eldri7ch
 if ('mapcolor' in argv && typeof(argv.mapcolor) !== 'undefined') {
   let termsAllowed = 'u,r,b,g,y,p,k'
   if (!(termsAllowed.includes(argv.mapcolor))) {
-    yargs().showHelp()
+    yargsFn().showHelp()
     console.error('\nMust contain a letter \'u\'(Blue), \'r\'(Crimson), \'b\'(Brown), \'g\'(Green), \'y\'(Gray), \'p\'(Purple), \'k\'(Pink)')
     process.exit(1)
   } else {
@@ -457,31 +341,33 @@ if ('inBin' in argv) {
   }
 }
 
-(async function randomize() {
+async function randomize() {
   try {
-    let check
-    let checksum
+    let check;
+    let checksum;
     if (!argv.noSeed) {
       check = new util.checked(typeof(fd) === 'object' ? undefined : fd)
-      let applied
+      let applied;
       try {
         // Check for overriding preset.
-        let override
+        let override;
         for (let preset of presets) {
           if (preset.override) {
-            applied = preset.options()
-            override = true
-            break
+            applied = preset.options();
+            override = true;
+            break;
           }
         }
         // Get user specified options.
         if (!override) {
-          applied = util.Preset.options(options)
+          console.log("options", options);
+          applied = Preset.prototype.options(options);
         }
       } catch (err) {
-        yargs().showHelp()
-        console.error('\n' + err.message)
-        process.exit(1)
+        console.log(err);
+        yargsFn().showHelp();
+        console.error('\n' + err.message);
+        process.exit(1);
       }
       try {
         let rng
@@ -649,4 +535,150 @@ if ('inBin' in argv) {
       fs.closeSync(fd)
     }
   }
-})
+}
+
+function handleComplexityArg() {
+  let applied = Object.assign({}, options);
+  // Check for preset.
+  if ('preset' in applied) {
+    applied = util.Preset.options(applied);
+  } else if (!('relicLocations' in options)) {
+    appield = util.Preset.options(Object.assign({ preset: 'safe' }, options));
+  }
+  if (typeof applied.relicLocations !== 'object') {
+    if (applied.relicLocations) {
+      // Inherit safe relic locations.
+      const logic = util.presetFromName('safe').options().relicLocations;
+      applied.relicLocations = logic;
+    } else {
+      yargsFn().showHelp();
+      console.error('\nRelic location randomization must be enabled to set ' +
+        'complexity');
+      process.exit(1);
+    }
+  }
+  // Get seed goals.
+  let complexity = Object.getOwnPropertyNames(applied.relicLocations).filter(
+    function (key) {
+      return /^[0-9]+$/.test(key);
+    }
+  );
+  if (complexity.length) {
+    complexity = complexity.pop();
+    if (parseInt(complexity) !== argv.complexity) {
+      const goals = applied.relicLocations[complexity];
+      delete applied.relicLocations[complexity];
+      applied.relicLocations[argv.complexity] = goals;
+      options = applied;
+    }
+  } else {
+    yargsFn().showHelp();
+    console.error('\nCompletion goals must be preset to set complexity');
+    process.exit(1);
+  }
+}
+
+async function handlePresetFileArg() {
+  if (options && 'preset' in options) {
+    yargsFn().showHelp();
+    console.error('\nCannot specify options string preset when using a preset file');
+    process.exit(1);
+  }
+  const relative = path.relative(path.dirname(__filename), argv.presetFile);
+  const preset = await import('./' + relative);
+  options = Object.assign(
+    options || {},
+    util.PresetBuilder.fromJSON(preset).build().options()
+  );
+}
+
+function handlePresetArg() {
+  try {
+    if (options && 'preset' in options && options.preset !== argv.preset) {
+      throw new Error('Command line option preset conflits with options '
+        + 'string preset');
+    }
+    options = Object.assign(
+      options || {},
+      util.optionsFromString('p:' + argv.preset)
+    );
+  } catch (e) {
+    yargsFn().showHelp();
+    console.error('\n' + e.message);
+    process.exit(1);
+  }
+}
+
+function handleOptionsArg() {
+  try {
+    options = util.optionsFromString(argv.options);
+  } catch (e) {
+    yargsFn().showHelp();
+    console.error('\n' + e.message);
+    process.exit(1);
+  }
+}
+
+function handleExpectChecksumArg() {
+  if (!('seed' in argv) && !argv._[0]) {
+    yargsFn().showHelp();
+    console.error('\nCannot specify checksum if not providing seed');
+    process.exit(1);
+  }
+  if (!argv.expectChecksum.match(/^[0-9a-f]{1,3}$/)) {
+    yargsFn().showHelp();
+    console.error('\nInvalid checksum string');
+    process.exit(1);
+  }
+  expectChecksum = parseInt(argv.expectChecksum, 16);
+  haveChecksum = true;
+}
+
+function handleSeedArg() {
+  if ('noSeed' in argv) {
+    yargsFn().showHelp();
+    console.error('\nCannot specify seed if seed generation is disabled');
+    process.exit(1);
+  }
+  seed = argv.seed.toString();
+}
+
+function handleHelpArg() {
+  if (!argv.help) {
+    yargs.showHelp();
+    process.exit();
+  }
+  const topics = {
+    options: optionsHelp,
+    drops: dropsHelp,
+    equipment: equipmentHelp,
+    items: itemsHelp,
+    rewards: rewardsHelp,
+    relics: relicsHelp,
+    writes: writesHelp,
+    tournament:  'Tournament mode applies the following:\n' + 
+    '- Spoiler log verbosity maximum is 2 (seed and starting equipment).\n' +
+    '- The library shop relic is free.\n' +
+    '- The clock room statue is always open.',
+    preset: presetHelp,
+  };
+  const script = path.basename(process.argv[1]);
+  Object.getOwnPropertyNames(topics).forEach(function (topic) {
+    topics[topic] = topics[topic].replace(/\$0/g, script);
+  }, {});
+  presets.forEach(function (preset) {
+    if (!preset.hidden) {
+      topics[preset.id] = presetMetaHelp(preset);
+    }
+  });
+  if (argv.help in topics) {
+    console.log(topics[argv.help]);
+    process.exit();
+  } else {
+    yargsFn().showHelp();
+    console.error('\nUnknown help topic: ' + argv.help);
+    process.exit(1);
+  }
+}
+
+await randomize();
